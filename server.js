@@ -30,7 +30,7 @@ io.on('connection',function(socket){
 });
  
 // escuchar
-http.listen(8000,function(){
+http.listen(80,function(){
 	console.log("Servidor Express escuchando en modo %s", app.settings.env);
 });
      

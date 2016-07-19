@@ -30,7 +30,19 @@ io.on('connection',function(socket){
 });
  
 // escuchar
-http.listen(3000,function(){
+/*http.listen(3000,function(){
 	console.log("Servidor Express escuchando en modo %s", app.settings.env);
-});
+});*/
+
+if (process.env.OPENSHIFT_NODEJS_IP && process.env.OPENSHIFT_NODEJS_PORT) 
+{
+    http.listen(process.env.OPENSHIFT_NODEJS_PORT, process.env.OPENSHIFT_NODEJS_IP, function() {
+      console.log('Listening at openshift on port: ' + process.env.OPENSHIFT_NODEJS_PORT);
+    });
+  }
+  else {
+    http.listen(80, function () {
+      console.log('Listing on port: 80')
+    })
+}
      

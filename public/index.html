@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial;background: #141414 }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+      form button { width: 19%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 2%; }
+      #messages li { padding: 5px 10px; color:#444;}
+      #messages li:nth-child(odd) { background: #eee; color:#444;}
+      #messages .conectado{ color:#9B703F;font-size:0.7em;margin:0 0 2% 0; }
+      #messages .contextMsg{float: left;width: 100%}
+      #messages .mensaje{background: #202021;width:auto;max-width:50%;padding:5px 10px;border-radius:5px;float:left;margin:0 0 1% 0;color:#C5AF5B;}
+      h4{color:#8B98AB;}
+    </style>
+  </head>
+  <body>
+    <div id="messages"></div>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Enviar</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		
+		//deleteStorage('nick');
+		var nick   = "Sin Nombre - " + Math.round(Math.random()*(10000-100000)+parseInt(10000));
+		//vamos a pedir nombre de usuario ó nickname
+		if(localStorage['nick'] == undefined)
+		{
+			solicitaNombre();
+		}
+		else
+		{
+			iniciaChat();
+		}
+
+		function solicitaNombre()
+		{
+			nick = prompt("Escribe tu nombre");
+			if(nick == "")
+			{
+				solicitaNombre();
+			}
+			else
+			{
+				//poner el nombre en sessión storage
+				localStorage['nick'] = nick;
+				iniciaChat()
+			}
+		}
+
+		function iniciaChat()
+		{
+			var socket = io();
+			//digo que el usuario se ha conectado
+			socket.emit("conectado",localStorage['nick']+" se ha conectado a la sala.");
+
+			$("form").submit(function(){
+				socket.emit("mensaje del chat",{mensaje:$("#m").val(),nombre:localStorage['nick']});
+				$('#m').val('');
+				$('#m').focus();
+				return false;
+			});
+
+			/*$("#m").keyUp(function(){
+				socket.emit("escribiendo","El usuario esta escribiendo");
+			});*/
+
+			socket.on('mensaje del chat',function(msg){
+				$('#messages').append($('<div class="contextMsg"><div class="mensaje"><h4>'+msg.nombre+' dice:</h4> '+msg.mensaje+'</div></div>'));
+			});
+
+			socket.on('conectado',function(msg){
+				$('#messages').append($('<div class="conectado">'+msg+'</div>'));
+			});
+		}
+
+
+		//pongo el mensaje de está escribiendo
+		/*socket.on('escribiendo',function(msg){
+
+		})*/
+
+	</script>
+  </body>
+</html>
